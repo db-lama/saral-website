@@ -238,10 +238,118 @@ window.onload = function() {
 
 // --- ORDER FORM (unchanged, but you can add delivery logic here if needed) ---
 const orderForm = document.getElementById('orderForm');
-orderForm.addEventListener('submit', function (e) {
+const esewaDetails = document.getElementById('esewaDetails');
+const bankDetails = document.getElementById('bankDetails');
+const orderQuantity = document.getElementById('orderQuantity');
+const orderTotal = document.getElementById('orderTotal');
+const orderProduct = document.getElementById('orderProduct');
+
+// Handle payment method selection
+document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        if (this.value === 'esewa') {
+            esewaDetails.classList.remove('d-none');
+            bankDetails.classList.add('d-none');
+        } else if (this.value === 'bank') {
+            esewaDetails.classList.add('d-none');
+            bankDetails.classList.remove('d-none');
+        }
+    });
+});
+
+// Calculate total amount when product or quantity changes
+function calculateTotal() {
+    const product = products.find(p => p.name === orderProduct.value);
+    if (product) {
+        const quantity = parseInt(orderQuantity.value) || 1;
+        orderTotal.value = (product.price * quantity).toFixed(2);
+    } else {
+        orderTotal.value = '';
+    }
+}
+
+orderProduct.addEventListener('change', calculateTotal);
+orderQuantity.addEventListener('input', calculateTotal);
+
+// Handle order form submission
+orderForm.addEventListener('submit', function(e) {
     e.preventDefault();
-    alert('Thank you for your order! We will contact you soon.');
+    
+    if (!orderForm.checkValidity()) {
+        e.stopPropagation();
+        orderForm.classList.add('was-validated');
+        return;
+    }
+
+    // Get form data
+    const formData = {
+        name: document.getElementById('orderName').value,
+        phone: document.getElementById('orderPhone').value,
+        email: document.getElementById('orderEmail').value,
+        product: orderProduct.value,
+        quantity: orderQuantity.value,
+        total: orderTotal.value,
+        address: document.getElementById('orderAddress').value,
+        paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
+        paymentVerification: document.getElementById('paymentVerification').files[0],
+        notes: document.getElementById('orderNotes').value
+    };
+
+    // Create success message
+    const successMessage = `
+        Thank you for your order!
+        
+        Order Details:
+        - Name: ${formData.name}
+        - Product: ${formData.product}
+        - Quantity: ${formData.quantity}
+        - Total Amount: NPR ${formData.total}
+        - Payment Method: ${formData.paymentMethod === 'esewa' ? 'eSewa' : 'Bank Transfer'}
+        
+        We have received your order and payment verification. 
+        Our team will review your order and contact you shortly.
+        
+        Order Reference: #${Date.now().toString().slice(-6)}
+    `;
+
+    // Show success modal
+    const modal = new bootstrap.Modal(document.createElement('div'));
+    modal.element.innerHTML = `
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Order Placed Successfully!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p style="white-space: pre-line;">${successMessage}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal.element);
+    modal.show();
+
+    // Reset form
     orderForm.reset();
+    orderForm.classList.remove('was-validated');
+    esewaDetails.classList.add('d-none');
+    bankDetails.classList.add('d-none');
+
+    // Remove modal from DOM after it's hidden
+    modal.element.addEventListener('hidden.bs.modal', function() {
+        document.body.removeChild(modal.element);
+    });
+});
+
+// Add phone number validation
+document.getElementById('orderPhone').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 10) value = value.slice(0, 10);
+    e.target.value = value;
 });
 
 // --- RETURN FORM HANDLING ---
@@ -272,7 +380,30 @@ returnEvidence.addEventListener('change', function(e) {
     }
 });
 
-// Form validation and submission
+// Return Form Functions
+function toggleRequestType() {
+    const returnType = document.getElementById('returnType');
+    const returnOptions = document.getElementById('returnOptions');
+    const exchangeOptions = document.getElementById('exchangeOptions');
+    
+    if (returnType.checked) {
+        returnOptions.classList.remove('d-none');
+        exchangeOptions.classList.add('d-none');
+        // Reset exchange fields
+        document.getElementById('exchangeProduct').value = '';
+        document.getElementById('exchangeReason').value = '';
+        document.getElementById('desiredProduct').value = '';
+        document.getElementById('exchangeDetails').value = '';
+    } else {
+        returnOptions.classList.add('d-none');
+        exchangeOptions.classList.remove('d-none');
+        // Reset return fields
+        document.getElementById('returnProduct').value = '';
+        document.getElementById('returnReason').value = '';
+    }
+}
+
+// Update return form submission to handle both return and exchange
 returnForm.addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -282,27 +413,36 @@ returnForm.addEventListener('submit', function(e) {
         return;
     }
 
-    // Collect form data
+    const isExchange = document.getElementById('exchangeType').checked;
+    
+    // Collect form data based on request type
     const formData = {
+        requestType: isExchange ? 'exchange' : 'return',
         orderId: document.getElementById('returnOrderId').value,
         purchaseDate: document.getElementById('returnDate').value,
         name: document.getElementById('returnName').value,
         phone: document.getElementById('returnPhone').value,
-        product: document.getElementById('returnProduct').value,
-        reason: document.getElementById('returnReason').value,
+        product: isExchange ? document.getElementById('exchangeProduct').value : document.getElementById('returnProduct').value,
+        reason: isExchange ? document.getElementById('exchangeReason').value : document.getElementById('returnReason').value,
         details: document.getElementById('returnDetails').value,
         complaint: document.getElementById('complaintMessage').value,
         evidence: returnEvidence.files
     };
 
-    // Here you would typically send the data to your server
-    // For now, we'll just show a success message
-    const successMessage = `
-        Thank you for your return request!
+    // Add exchange-specific data if it's an exchange request
+    if (isExchange) {
+        formData.desiredProduct = document.getElementById('desiredProduct').value;
+        formData.exchangeDetails = document.getElementById('exchangeDetails').value;
+    }
+
+    // Prepare success message based on request type
+    let successMessage = `
+        Thank you for your ${isExchange ? 'exchange' : 'return'} request!
         We have received your request with the following details:
         - Order ID: ${formData.orderId}
         - Product: ${formData.product}
-        - Reason: ${formData.reason}
+        - Reason: ${formData.reason.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+        ${isExchange ? `- Desired Exchange Product: ${formData.desiredProduct}` : ''}
         
         We will review your request and contact you within 2 business days.
         Please keep the product in its original condition until we process your request.
@@ -314,7 +454,7 @@ returnForm.addEventListener('submit', function(e) {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Return Request Submitted</h5>
+                    <h5 class="modal-title">${isExchange ? 'Exchange' : 'Return'} Request Submitted</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -332,6 +472,8 @@ returnForm.addEventListener('submit', function(e) {
     // Reset form
     returnForm.reset();
     returnForm.classList.remove('was-validated');
+    document.getElementById('returnType').checked = true;
+    toggleRequestType();
 
     // Remove modal from DOM after it's hidden
     modal.element.addEventListener('hidden.bs.modal', function() {
@@ -524,6 +666,8 @@ function viewProductDetails(productId) {
 
     // Create and show modal
     const modal = new bootstrap.Modal(document.createElement('div'));
+    const description = product.description ? product.description.replace(/</g, '&lt;').replace(/>/g, '&gt;') : 'No description available.';
+    
     modal.element.innerHTML = `
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -539,16 +683,21 @@ function viewProductDetails(productId) {
                         <div class="col-md-6">
                             <div class="product-details">
                                 <h4 class="mb-3">${product.name}</h4>
-                                <p class="mb-2">
-                                    <span class="badge bg-primary">${product.category}</span>
-                                    ${!product.inStock ? '<span class="badge bg-danger ms-2">Out of Stock</span>' : ''}
-                                </p>
-                                <p class="h3 text-primary mb-4">NPR ${product.price.toLocaleString()}</p>
-                                <div class="mb-4">
-                                    <h6 class="mb-2">Description:</h6>
-                                    <p class="mb-0">${product.description || 'No description available.'}</p>
+                                <div class="mb-3">
+                                    <h6 class="mb-2">Category:</h6>
+                                    <p class="mb-0"><span class="badge bg-primary">${product.category}</span></p>
                                 </div>
-                                <div class="mb-4">
+                                <div class="mb-3">
+                                    <h6 class="mb-2">Price:</h6>
+                                    <p class="h3 text-primary mb-0">NPR ${product.price.toLocaleString()}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <h6 class="mb-2">Description:</h6>
+                                    <div class="description-box" style="white-space: pre-wrap; max-height: 200px; overflow-y: auto; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
+                                        ${description}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
                                     <h6 class="mb-2">Availability:</h6>
                                     <p class="mb-0">${product.inStock ? 
                                         '<span class="text-success"><i class="bi bi-check-circle-fill me-2"></i>In Stock</span>' : 
@@ -580,4 +729,260 @@ function viewProductDetails(productId) {
     modal.element.addEventListener('hidden.bs.modal', function() {
         document.body.removeChild(modal.element);
     });
-} 
+}
+
+// Bank Settings Management
+let bankSettings = {
+    bankName: 'Nepal Bank Limited',
+    accountName: 'Saral Cosmetic And Seasonal Shop',
+    accountNumber: '1234567890',
+    branchName: 'Gokarneshwor Branch',
+    qrCode: '' // Will store the QR code image as base64
+};
+
+// Load bank settings from localStorage if available
+function loadBankSettings() {
+    const savedSettings = localStorage.getItem('bankSettings');
+    if (savedSettings) {
+        bankSettings = JSON.parse(savedSettings);
+        updateBankDisplay();
+    }
+}
+
+// Save bank settings to localStorage
+function saveBankSettings(settings) {
+    localStorage.setItem('bankSettings', JSON.stringify(settings));
+    bankSettings = settings;
+    updateBankDisplay();
+}
+
+// Update bank details display
+function updateBankDisplay() {
+    document.getElementById('displayBankName').textContent = bankSettings.bankName;
+    document.getElementById('displayAccountName').textContent = bankSettings.accountName;
+    document.getElementById('displayAccountNumber').textContent = bankSettings.accountNumber;
+    document.getElementById('displayBranchName').textContent = bankSettings.branchName;
+    document.getElementById('displayQRCode').src = bankSettings.qrCode || 'path/to/default-qr.png';
+}
+
+// Handle bank settings form
+const bankSettingsForm = document.getElementById('bankSettingsForm');
+const bankQRCodeInput = document.getElementById('bankQRCode');
+const currentQRCodeDiv = document.querySelector('.current-qr-code');
+const currentQRCodeImg = document.getElementById('currentQRCode');
+
+// Show current QR code if available
+if (bankSettings.qrCode) {
+    currentQRCodeDiv.classList.remove('d-none');
+    currentQRCodeImg.src = bankSettings.qrCode;
+}
+
+// Pre-fill form with current settings
+document.getElementById('bankName').value = bankSettings.bankName;
+document.getElementById('accountName').value = bankSettings.accountName;
+document.getElementById('accountNumber').value = bankSettings.accountNumber;
+document.getElementById('branchName').value = bankSettings.branchName;
+
+// Handle QR code upload
+bankQRCodeInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            currentQRCodeDiv.classList.remove('d-none');
+            currentQRCodeImg.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Handle bank settings form submission
+bankSettingsForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    if (!bankSettingsForm.checkValidity()) {
+        e.stopPropagation();
+        bankSettingsForm.classList.add('was-validated');
+        return;
+    }
+
+    const newSettings = {
+        bankName: document.getElementById('bankName').value,
+        accountName: document.getElementById('accountName').value,
+        accountNumber: document.getElementById('accountNumber').value,
+        branchName: document.getElementById('branchName').value,
+        qrCode: currentQRCodeImg.src
+    };
+
+    saveBankSettings(newSettings);
+    
+    // Show success message
+    const modal = new bootstrap.Modal(document.createElement('div'));
+    modal.element.innerHTML = `
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Settings Saved</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bank payment settings have been updated successfully.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal.element);
+    modal.show();
+
+    // Close the settings modal
+    bootstrap.Modal.getInstance(document.getElementById('bankSettingsModal')).hide();
+
+    // Remove success modal from DOM after it's hidden
+    modal.element.addEventListener('hidden.bs.modal', function() {
+        document.body.removeChild(modal.element);
+    });
+});
+
+// Load bank settings when the page loads
+window.addEventListener('load', function() {
+    loadBankSettings();
+});
+
+// eSewa Settings Management
+let esewaSettings = {
+    esewaId: '9841150692',
+    accountName: 'Saral Cosmetic And Seasonal Shop',
+    enabled: true,
+    qrCode: '' // Will store the QR code image as base64
+};
+
+// Load eSewa settings from localStorage if available
+function loadEsewaSettings() {
+    const savedSettings = localStorage.getItem('esewaSettings');
+    if (savedSettings) {
+        esewaSettings = JSON.parse(savedSettings);
+        updateEsewaDisplay();
+    }
+}
+
+// Save eSewa settings to localStorage
+function saveEsewaSettings(settings) {
+    localStorage.setItem('esewaSettings', JSON.stringify(settings));
+    esewaSettings = settings;
+    updateEsewaDisplay();
+}
+
+// Update eSewa details display
+function updateEsewaDisplay() {
+    document.getElementById('displayEsewaId').textContent = esewaSettings.esewaId;
+    document.getElementById('displayEsewaQR').src = esewaSettings.qrCode || 'path/to/default-esewa-qr.png';
+    
+    // Update payment method radio button visibility
+    const esewaRadio = document.getElementById('esewaPayment');
+    if (esewaRadio) {
+        esewaRadio.parentElement.style.display = esewaSettings.enabled ? 'block' : 'none';
+        if (!esewaSettings.enabled && esewaRadio.checked) {
+            // If eSewa is disabled and was selected, switch to bank payment
+            document.getElementById('bankPayment').checked = true;
+            esewaDetails.classList.add('d-none');
+            bankDetails.classList.remove('d-none');
+        }
+    }
+}
+
+// Handle eSewa settings form
+const esewaSettingsForm = document.getElementById('esewaSettingsForm');
+const esewaIdInput = document.getElementById('esewaId');
+const esewaNameInput = document.getElementById('esewaName');
+const esewaEnabledInput = document.getElementById('esewaEnabled');
+const esewaQRCodeInput = document.getElementById('esewaQRCode');
+const currentEsewaQRDiv = document.querySelector('#esewaSettingsModal .current-qr-code');
+const currentEsewaQRImg = document.getElementById('currentEsewaQR');
+
+// Show current QR code if available
+if (esewaSettings.qrCode) {
+    currentEsewaQRDiv.classList.remove('d-none');
+    currentEsewaQRImg.src = esewaSettings.qrCode;
+}
+
+// Pre-fill form with current settings
+if (esewaIdInput) esewaIdInput.value = esewaSettings.esewaId;
+if (esewaNameInput) esewaNameInput.value = esewaSettings.accountName;
+if (esewaEnabledInput) esewaEnabledInput.checked = esewaSettings.enabled;
+
+// Handle QR code upload
+esewaQRCodeInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            currentEsewaQRDiv.classList.remove('d-none');
+            currentEsewaQRImg.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Handle eSewa settings form submission
+esewaSettingsForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    if (!esewaSettingsForm.checkValidity()) {
+        e.stopPropagation();
+        esewaSettingsForm.classList.add('was-validated');
+        return;
+    }
+
+    const newSettings = {
+        esewaId: esewaIdInput.value,
+        accountName: esewaNameInput.value,
+        enabled: esewaEnabledInput.checked,
+        qrCode: currentEsewaQRImg.src
+    };
+
+    saveEsewaSettings(newSettings);
+    
+    // Show success message
+    const modal = new bootstrap.Modal(document.createElement('div'));
+    modal.element.innerHTML = `
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Settings Saved</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>eSewa payment settings have been updated successfully.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal.element);
+    modal.show();
+
+    // Close the settings modal
+    bootstrap.Modal.getInstance(document.getElementById('esewaSettingsModal')).hide();
+
+    // Remove success modal from DOM after it's hidden
+    modal.element.addEventListener('hidden.bs.modal', function() {
+        document.body.removeChild(modal.element);
+    });
+});
+
+// Add eSewa ID validation
+esewaIdInput.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 10) value = value.slice(0, 10);
+    e.target.value = value;
+});
+
+// Load eSewa settings when the page loads
+window.addEventListener('load', function() {
+    loadEsewaSettings();
+}); 

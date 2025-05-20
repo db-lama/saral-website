@@ -210,6 +210,7 @@
         <div class="container">
             <h2 class="text-center mb-4 fw-bold">Order Online</h2>
             <form class="row g-3" id="orderForm">
+                <!-- Customer Information -->
                 <div class="col-md-6">
                     <label for="orderName" class="form-label">Your Name</label>
                     <input type="text" class="form-control" id="orderName" required>
@@ -219,15 +220,168 @@
                     <input type="tel" class="form-control" id="orderPhone" required>
                 </div>
                 <div class="col-12">
+                    <label for="orderEmail" class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="orderEmail" required>
+                </div>
+
+                <!-- Product Information -->
+                <div class="col-12">
                     <label for="orderProduct" class="form-label">Product Name</label>
                     <input type="text" class="form-control" id="orderProduct" required>
                 </div>
+                <div class="col-md-6">
+                    <label for="orderQuantity" class="form-label">Quantity</label>
+                    <input type="number" class="form-control" id="orderQuantity" min="1" value="1" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="orderTotal" class="form-label">Total Amount (NPR)</label>
+                    <input type="number" class="form-control" id="orderTotal" readonly>
+                </div>
+
+                <!-- Delivery Information -->
                 <div class="col-12">
                     <label for="orderAddress" class="form-label">Delivery Address</label>
-                    <input type="text" class="form-control" id="orderAddress" required>
+                    <textarea class="form-control" id="orderAddress" rows="2" required></textarea>
                 </div>
+
+                <!-- Payment Method Selection -->
+                <div class="col-12">
+                    <label class="form-label">Payment Method</label>
+                    <div class="payment-methods">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="esewaPayment" value="esewa" required>
+                            <label class="form-check-label" for="esewaPayment">
+                                <img src="https://esewa.com.np/assets/images/logo.png" alt="eSewa" height="24" class="me-2">
+                                Pay with eSewa
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="bankPayment" value="bank" required>
+                            <label class="form-check-label" for="bankPayment">
+                                <i class="bi bi-bank me-2"></i>Bank Transfer
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- eSewa Payment Details (initially hidden) -->
+                <div id="esewaDetails" class="col-12 d-none">
+                    <div class="alert alert-info">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="alert-heading mb-0">Pay with eSewa</h6>
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#esewaSettingsModal">
+                                <i class="bi bi-gear me-1"></i>Settings
+                            </button>
+                        </div>
+                        <p class="mb-2">Please use the following eSewa ID to make your payment:</p>
+                        <div class="d-flex align-items-center mb-2">
+                            <strong class="me-2">eSewa ID:</strong>
+                            <span class="badge bg-primary" id="displayEsewaId">9841150692</span>
+                        </div>
+                        <div class="text-center mb-2">
+                            <p class="mb-2">Or scan the QR code below:</p>
+                            <img id="displayEsewaQR" src="" alt="eSewa QR Code" class="img-fluid" style="max-width: 200px;">
+                        </div>
+                        <p class="mb-0">After payment, please upload your payment verification screenshot below.</p>
+                    </div>
+                </div>
+
+                <!-- Bank Settings Modal -->
+                <div class="modal fade" id="bankSettingsModal" tabindex="-1" aria-labelledby="bankSettingsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="bankSettingsModalLabel">Bank Payment Settings</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="bankSettingsForm">
+                                    <div class="mb-3">
+                                        <label for="bankName" class="form-label">Bank Name</label>
+                                        <input type="text" class="form-control" id="bankName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="accountName" class="form-label">Account Name</label>
+                                        <input type="text" class="form-control" id="accountName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="accountNumber" class="form-label">Account Number</label>
+                                        <input type="text" class="form-control" id="accountNumber" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="branchName" class="form-label">Branch Name</label>
+                                        <input type="text" class="form-control" id="branchName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="bankQRCode" class="form-label">Bank QR Code</label>
+                                        <input type="file" class="form-control" id="bankQRCode" accept="image/*" required>
+                                        <div class="form-text">Upload your bank's QR code image (recommended size: 200x200 pixels)</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="current-qr-code d-none">
+                                            <label class="form-label">Current QR Code</label>
+                                            <div class="text-center mb-2">
+                                                <img id="currentQRCode" src="" alt="Current QR Code" class="img-fluid" style="max-width: 200px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Save Bank Settings</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update the bank payment details section in the order form -->
+                <div id="bankDetails" class="col-12 d-none">
+                    <div class="alert alert-info">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="alert-heading mb-0">Bank Transfer Details</h6>
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#bankSettingsModal">
+                                <i class="bi bi-gear me-1"></i>Settings
+                            </button>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Bank Name:</strong> <span id="displayBankName">Nepal Bank Limited</span><br>
+                            <strong>Account Name:</strong> <span id="displayAccountName">Saral Cosmetic And Seasonal Shop</span><br>
+                            <strong>Account Number:</strong> <span id="displayAccountNumber">1234567890</span><br>
+                            <strong>Branch:</strong> <span id="displayBranchName">Gokarneshwor Branch</span>
+                        </div>
+                        <p class="mb-2">Please scan the QR code below to make payment:</p>
+                        <div class="text-center mb-2">
+                            <img id="displayQRCode" src="" alt="Bank QR Code" class="img-fluid" style="max-width: 200px;">
+                        </div>
+                        <p class="mb-0">After payment, please upload your payment verification screenshot below.</p>
+                    </div>
+                </div>
+
+                <!-- Payment Verification Upload -->
+                <div class="col-12">
+                    <label for="paymentVerification" class="form-label">Payment Verification</label>
+                    <input type="file" class="form-control" id="paymentVerification" accept="image/*,.pdf" required>
+                    <div class="form-text">Upload your payment confirmation screenshot or receipt (eSewa transaction or bank transfer)</div>
+                </div>
+
+                <!-- Additional Notes -->
+                <div class="col-12">
+                    <label for="orderNotes" class="form-label">Additional Notes (Optional)</label>
+                    <textarea class="form-control" id="orderNotes" rows="2" placeholder="Any special instructions or requests..."></textarea>
+                </div>
+
+                <!-- Terms and Submit -->
+                <div class="col-12">
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="orderTerms" required>
+                        <label class="form-check-label" for="orderTerms">
+                            I confirm that all the information provided is accurate and I agree to the terms and conditions
+                        </label>
+                    </div>
+                </div>
+
                 <div class="col-12 text-center">
-                    <button type="submit" class="btn btn-success px-5">Place Order</button>
+                    <button type="submit" class="btn btn-success btn-lg px-5">
+                        <i class="bi bi-check-circle me-2"></i>Place Order
+                    </button>
                 </div>
             </form>
         </div>
@@ -270,33 +424,84 @@
                                     </div>
                                 </div>
 
-                                <!-- Return Details -->
-                                <div class="row g-3 mb-4">
-                                    <div class="col-md-6">
-                                        <label for="returnProduct" class="form-label">Product Name</label>
-                                        <input type="text" class="form-control" id="returnProduct" required>
-                                        <div class="invalid-feedback">Please provide the product name.</div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="returnReason" class="form-label">Reason for Return</label>
-                                        <select class="form-select" id="returnReason" required>
-                                            <option value="">Select a reason</option>
-                                            <option value="damaged">Product Damaged</option>
-                                            <option value="wrong_item">Wrong Item Received</option>
-                                            <option value="quality">Quality Issues</option>
-                                            <option value="size">Size/Color Not as Expected</option>
-                                            <option value="defective">Product Defective</option>
-                                            <option value="other">Other Reason</option>
-                                        </select>
-                                        <div class="invalid-feedback">Please select a reason for return.</div>
+                                <!-- Return Type Selection -->
+                                <div class="mb-4">
+                                    <label class="form-label d-block">Request Type</label>
+                                    <div class="btn-group w-100" role="group" aria-label="Request type selection">
+                                        <input type="radio" class="btn-check" name="requestType" id="returnType" value="return" checked onchange="toggleRequestType()">
+                                        <label class="btn btn-outline-primary" for="returnType">
+                                            <i class="bi bi-arrow-return-left me-2"></i>Return/Refund
+                                        </label>
+                                        <input type="radio" class="btn-check" name="requestType" id="exchangeType" value="exchange" onchange="toggleRequestType()">
+                                        <label class="btn btn-outline-primary" for="exchangeType">
+                                            <i class="bi bi-arrow-left-right me-2"></i>Exchange
+                                        </label>
                                     </div>
                                 </div>
 
-                                <!-- Additional Details -->
+                                <!-- Return/Refund Options (initially visible) -->
+                                <div id="returnOptions">
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <label for="returnProduct" class="form-label">Product Name</label>
+                                            <input type="text" class="form-control" id="returnProduct" required>
+                                            <div class="invalid-feedback">Please provide the product name.</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="returnReason" class="form-label">Reason for Return</label>
+                                            <select class="form-select" id="returnReason" required>
+                                                <option value="">Select a reason</option>
+                                                <option value="damaged">Product Damaged</option>
+                                                <option value="wrong_item">Wrong Item Received</option>
+                                                <option value="quality">Quality Issues</option>
+                                                <option value="defective">Product Defective</option>
+                                                <option value="refund">Refund Request</option>
+                                                <option value="other">Other Reason</option>
+                                            </select>
+                                            <div class="invalid-feedback">Please select a reason for return.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Exchange Options (initially hidden) -->
+                                <div id="exchangeOptions" class="d-none">
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <label for="exchangeProduct" class="form-label">Current Product</label>
+                                            <input type="text" class="form-control" id="exchangeProduct" required>
+                                            <div class="invalid-feedback">Please provide the current product name.</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="exchangeReason" class="form-label">Exchange Reason</label>
+                                            <select class="form-select" id="exchangeReason" required>
+                                                <option value="">Select a reason</option>
+                                                <option value="size">Size Not Suitable</option>
+                                                <option value="color">Color Not as Expected</option>
+                                                <option value="style">Style Preference</option>
+                                                <option value="different_product">Want Different Product</option>
+                                                <option value="other">Other Reason</option>
+                                            </select>
+                                            <div class="invalid-feedback">Please select a reason for exchange.</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="desiredProduct" class="form-label">Desired Exchange Product</label>
+                                        <input type="text" class="form-control" id="desiredProduct" required
+                                            placeholder="Enter the name of the product you want to exchange for...">
+                                        <div class="form-text">Please specify the product you would like to exchange for.</div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="exchangeDetails" class="form-label">Exchange Details</label>
+                                        <textarea class="form-control" id="exchangeDetails" rows="3" 
+                                            placeholder="Please provide any specific details about your exchange request (e.g., desired size, color, etc.)..."></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Details (common for both) -->
                                 <div class="mb-4">
                                     <label for="returnDetails" class="form-label">Additional Details</label>
                                     <textarea class="form-control" id="returnDetails" rows="4" 
-                                        placeholder="Please provide any additional details about your return request..."></textarea>
+                                        placeholder="Please provide any additional details about your request..."></textarea>
                                 </div>
 
                                 <!-- Complaint Message -->
@@ -398,6 +603,54 @@
                             <input type="text" class="form-control" id="newCategoryName" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Add Category</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- eSewa Settings Modal -->
+    <div class="modal fade" id="esewaSettingsModal" tabindex="-1" aria-labelledby="esewaSettingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="esewaSettingsModalLabel">eSewa Payment Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="esewaSettingsForm">
+                        <div class="mb-3">
+                            <label for="esewaId" class="form-label">eSewa ID</label>
+                            <input type="text" class="form-control" id="esewaId" required>
+                            <div class="form-text">Enter your eSewa mobile number or ID</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="esewaName" class="form-label">Account Name</label>
+                            <input type="text" class="form-control" id="esewaName" required>
+                            <div class="form-text">Enter the name associated with your eSewa account</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="esewaQRCode" class="form-label">eSewa QR Code</label>
+                            <input type="file" class="form-control" id="esewaQRCode" accept="image/*">
+                            <div class="form-text">Upload your eSewa QR code image (recommended size: 200x200 pixels)</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="current-qr-code d-none">
+                                <label class="form-label">Current QR Code</label>
+                                <div class="text-center mb-2">
+                                    <img id="currentEsewaQR" src="" alt="Current eSewa QR Code" class="img-fluid" style="max-width: 200px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="esewaEnabled" checked>
+                                <label class="form-check-label" for="esewaEnabled">
+                                    Enable eSewa Payments
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Save eSewa Settings</button>
                     </form>
                 </div>
             </div>
