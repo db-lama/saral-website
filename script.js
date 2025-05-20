@@ -855,8 +855,7 @@ window.addEventListener('load', function() {
 let esewaSettings = {
     esewaId: '9841150692',
     accountName: 'Saral Cosmetic And Seasonal Shop',
-    enabled: true,
-    qrCode: '' // Will store the QR code image as base64
+    enabled: true
 };
 
 // Load eSewa settings from localStorage if available
@@ -878,7 +877,6 @@ function saveEsewaSettings(settings) {
 // Update eSewa details display
 function updateEsewaDisplay() {
     document.getElementById('displayEsewaId').textContent = esewaSettings.esewaId;
-    document.getElementById('displayEsewaQR').src = esewaSettings.qrCode || 'path/to/default-esewa-qr.png';
     
     // Update payment method radio button visibility
     const esewaRadio = document.getElementById('esewaPayment');
@@ -898,33 +896,11 @@ const esewaSettingsForm = document.getElementById('esewaSettingsForm');
 const esewaIdInput = document.getElementById('esewaId');
 const esewaNameInput = document.getElementById('esewaName');
 const esewaEnabledInput = document.getElementById('esewaEnabled');
-const esewaQRCodeInput = document.getElementById('esewaQRCode');
-const currentEsewaQRDiv = document.querySelector('#esewaSettingsModal .current-qr-code');
-const currentEsewaQRImg = document.getElementById('currentEsewaQR');
-
-// Show current QR code if available
-if (esewaSettings.qrCode) {
-    currentEsewaQRDiv.classList.remove('d-none');
-    currentEsewaQRImg.src = esewaSettings.qrCode;
-}
 
 // Pre-fill form with current settings
 if (esewaIdInput) esewaIdInput.value = esewaSettings.esewaId;
 if (esewaNameInput) esewaNameInput.value = esewaSettings.accountName;
 if (esewaEnabledInput) esewaEnabledInput.checked = esewaSettings.enabled;
-
-// Handle QR code upload
-esewaQRCodeInput.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            currentEsewaQRDiv.classList.remove('d-none');
-            currentEsewaQRImg.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-});
 
 // Handle eSewa settings form submission
 esewaSettingsForm.addEventListener('submit', function(e) {
@@ -939,8 +915,7 @@ esewaSettingsForm.addEventListener('submit', function(e) {
     const newSettings = {
         esewaId: esewaIdInput.value,
         accountName: esewaNameInput.value,
-        enabled: esewaEnabledInput.checked,
-        qrCode: currentEsewaQRImg.src
+        enabled: esewaEnabledInput.checked
     };
 
     saveEsewaSettings(newSettings);
