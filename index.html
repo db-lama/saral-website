@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SACSS - Premium Cosmetic & Seasonal Shop</title>
+    <meta name="description" content="Your premium destination for cosmetics, baby toys, and seasonal essentials since 2001. Experience quality and style with SACSS.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">SACSS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link active" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#categories">Shop</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#order">Order</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#returns">Returns</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                </ul>
+                <!-- Search Bar -->
+                <form class="d-flex search-form" id="searchForm">
+                    <div class="input-group">
+                        <input type="search" class="form-control" id="searchInput" placeholder="Search products..." aria-label="Search">
+                        <button class="btn btn-light" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-white d-flex align-items-center" id="home">
+        <div class="container-fluid p-0">
+            <div class="row g-0">
+                <!-- Product Showcase Carousel -->
+                <div class="col-lg-8">
+                    <div id="productShowcase" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+                        <div class="carousel-indicators">
+                            <!-- Will be dynamically populated -->
+                        </div>
+                        <div class="carousel-inner">
+                            <!-- Will be dynamically populated -->
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#productShowcase" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#productShowcase" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Welcome Text -->
+                <div class="col-lg-4 d-flex align-items-center">
+                    <div class="container py-5">
+                        <div class="px-lg-4">
+                            <h1 class="display-4 fw-bold mb-4 fade-up">Welcome to SACSS</h1>
+                            <p class="lead mb-5 fade-up">Your premium destination for cosmetics, baby toys, and seasonal essentials since 2001</p>
+                            <div class="alert alert-warning mt-4 shadow-lg fade-up" role="alert">
+                                <i class="bi bi-star-fill me-2"></i>
+                                <strong>New Collection!</strong> Discover our latest premium collection!
+                            </div>
+                            <div class="d-flex gap-3 mt-4 fade-up">
+                                <a href="#categories" class="btn btn-light btn-lg">
+                                    <i class="bi bi-shop me-2"></i>Shop Now
+                                </a>
+                                <a href="#order" class="btn btn-outline-light btn-lg">
+                                    <i class="bi bi-cart me-2"></i>Order
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Category Showcase Section -->
+    <section class="py-5 bg-light" id="category-showcase">
+        <div class="container">
+            <h2 class="text-center mb-5 fade-up">Browse by Category</h2>
+            <div class="row g-4" id="category-showcase-grid">
+                <!-- Categories will be dynamically inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="py-5" id="categories">
+        <div class="container">
+            <h2 class="text-center mb-5 fade-up">Shop by Category</h2>
+            <div class="row">
+                <!-- Left Column: Product List -->
+                <div class="col-lg-9">
+                    <div class="d-flex justify-content-between align-items-center mb-4 fade-up">
+                        <div>
+                            <h3 class="h4 mb-0" id="categoryTitle">All Products</h3>
+                            <p class="text-muted mb-0" id="productCount"></p>
+                        </div>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                            <i class="bi bi-plus-lg me-2"></i>Upload Product
+                        </button>
+                    </div>
+                    <!-- Search Results Alert -->
+                    <div class="alert alert-info mb-4 d-none" id="searchResultsAlert" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <span id="searchResultsText"></span>
+                        <button type="button" class="btn-close float-end" onclick="clearSearch()"></button>
+                    </div>
+                    <div class="row g-4" id="product-list">
+                        <!-- Products will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <!-- Right Column: Category List -->
+                <div class="col-lg-3">
+                    <div class="card shadow-sm fade-up">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="h5 mb-0">Categories</h3>
+                            <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                        <div class="list-group list-group-flush" id="category-list">
+                            <!-- Categories will be dynamically inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products (User Upload) -->
+    <section class="py-5" id="featured">
+        <div class="container">
+            <h2 class="text-center mb-4 fw-bold">Featured Products</h2>
+            <div class="row g-4" id="product-list">
+                <!-- Products will be dynamically inserted here -->
+            </div>
+            <div class="text-center mt-4">
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#uploadModal">Upload Your Product</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upload Product Modal -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadModalLabel">Upload Your Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadForm">
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="productName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productCategory" class="form-label">Category</label>
+                            <select class="form-select" id="productCategory" required>
+                                <option value="Cosmetics">Cosmetics</option>
+                                <option value="Baby Toys">Baby Toys</option>
+                                <option value="Seasonal Items">Seasonal Items</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productDescription" class="form-label">Product Description</label>
+                            <textarea class="form-control" id="productDescription" rows="4" placeholder="Enter detailed description of your product..." required></textarea>
+                            <div class="form-text">Describe your product's features, specifications, and any other important details.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productImage" class="form-label">Product Image</label>
+                            <input class="form-control" type="file" id="productImage" accept="image/*" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productPrice" class="form-label">Price (NPR)</label>
+                            <input type="number" class="form-control" id="productPrice" required>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="productInStock" checked>
+                                <label class="form-check-label" for="productInStock">
+                                    In Stock
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Upload</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Online Section -->
+    <section class="py-5 bg-light" id="order">
+        <div class="container">
+            <h2 class="text-center mb-4 fw-bold">Order Online</h2>
+            <form class="row g-3" id="orderForm">
+                <div class="col-md-6">
+                    <label for="orderName" class="form-label">Your Name</label>
+                    <input type="text" class="form-control" id="orderName" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="orderPhone" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="orderPhone" required>
+                </div>
+                <div class="col-12">
+                    <label for="orderProduct" class="form-label">Product Name</label>
+                    <input type="text" class="form-control" id="orderProduct" required>
+                </div>
+                <div class="col-12">
+                    <label for="orderAddress" class="form-label">Delivery Address</label>
+                    <input type="text" class="form-control" id="orderAddress" required>
+                </div>
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-success px-5">Place Order</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Return/Refund Request Section -->
+    <section class="py-5" id="returns">
+        <div class="container">
+            <h2 class="text-center mb-4 fw-bold">Return/Refund Request</h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm">
+                        <div class="card-body p-4">
+                            <form id="returnForm" class="needs-validation" novalidate>
+                                <!-- Order Information -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label for="returnOrderId" class="form-label">Order ID/Number</label>
+                                        <input type="text" class="form-control" id="returnOrderId" required>
+                                        <div class="invalid-feedback">Please provide your order ID.</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="returnDate" class="form-label">Purchase Date</label>
+                                        <input type="date" class="form-control" id="returnDate" required>
+                                        <div class="invalid-feedback">Please select purchase date.</div>
+                                    </div>
+                                </div>
+
+                                <!-- Contact Information -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label for="returnName" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="returnName" required>
+                                        <div class="invalid-feedback">Please provide your name.</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="returnPhone" class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="returnPhone" required>
+                                        <div class="invalid-feedback">Please provide your phone number.</div>
+                                    </div>
+                                </div>
+
+                                <!-- Return Details -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label for="returnProduct" class="form-label">Product Name</label>
+                                        <input type="text" class="form-control" id="returnProduct" required>
+                                        <div class="invalid-feedback">Please provide the product name.</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="returnReason" class="form-label">Reason for Return</label>
+                                        <select class="form-select" id="returnReason" required>
+                                            <option value="">Select a reason</option>
+                                            <option value="damaged">Product Damaged</option>
+                                            <option value="wrong_item">Wrong Item Received</option>
+                                            <option value="quality">Quality Issues</option>
+                                            <option value="size">Size/Color Not as Expected</option>
+                                            <option value="defective">Product Defective</option>
+                                            <option value="other">Other Reason</option>
+                                        </select>
+                                        <div class="invalid-feedback">Please select a reason for return.</div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Details -->
+                                <div class="mb-4">
+                                    <label for="returnDetails" class="form-label">Additional Details</label>
+                                    <textarea class="form-control" id="returnDetails" rows="4" 
+                                        placeholder="Please provide any additional details about your return request..."></textarea>
+                                </div>
+
+                                <!-- Complaint Message -->
+                                <div class="mb-4">
+                                    <label for="complaintMessage" class="form-label">Complaint Message (Optional)</label>
+                                    <textarea class="form-control" id="complaintMessage" rows="3" 
+                                        placeholder="If you have any complaints or suggestions, please let us know..."></textarea>
+                                </div>
+
+                                <!-- Upload Evidence -->
+                                <div class="mb-4">
+                                    <label for="returnEvidence" class="form-label">Upload Evidence (Photos)</label>
+                                    <input type="file" class="form-control" id="returnEvidence" accept="image/*" multiple>
+                                    <div class="form-text">Upload photos of the product condition (max 3 images)</div>
+                                </div>
+
+                                <!-- Terms and Submit -->
+                                <div class="mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="returnTerms" required>
+                                        <label class="form-check-label" for="returnTerms">
+                                            I agree to the return policy and confirm that the information provided is accurate
+                                        </label>
+                                        <div class="invalid-feedback">You must agree to the terms before submitting.</div>
+                                    </div>
+                                </div>
+
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">Submit Return Request</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact & Info Section -->
+    <footer class="py-5" id="contact">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <h5 class="text-white mb-4">Saral cosmetic and seasonal shop (SCASS)</h5>
+                    <p class="text-white-50">Your premium destination for quality products since 2001. We bring you the finest selection of cosmetics, baby toys, and seasonal essentials.</p>
+                </div>
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <h5 class="text-white mb-4">Contact Us</h5>
+                    <p class="text-white-50 mb-2">
+                        <i class="bi bi-geo-alt-fill me-2"></i>Gokarneshwor-2, Nayapati
+                    </p>
+                    <p class="text-white-50 mb-2">
+                        <i class="bi bi-telephone-fill me-2"></i>
+                        <a href="tel:9841150692" class="text-white-50">9841150692</a>
+                    </p>
+                    <p class="text-white-50">
+                        <i class="bi bi-envelope-fill me-2"></i>
+                        <a href="mailto:saralashrestha2000@gmail.com" class="text-white-50">saralashrestha2000@gmail.com</a>
+                    </p>
+                </div>
+                <div class="col-lg-4">
+                    <h5 class="text-white mb-4">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#categories" class="text-white-50">Shop</a></li>
+                        <li class="mb-2"><a href="#order" class="text-white-50">Order Online</a></li>
+                        <li class="mb-2"><a href="#returns" class="text-white-50">Returns</a></li>
+                        <li><a href="#contact" class="text-white-50">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 border-secondary">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="text-white-50 mb-0">&copy; 2025 Saral cosmetic and seasonal shop (SCASS). All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+                    <div class="social-links">
+                        <a href="#" class="text-white-50 me-3"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white-50 me-3"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-white-50"><i class="bi bi-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add Category Modal -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCategoryForm">
+                        <div class="mb-3">
+                            <label for="newCategoryName" class="form-label">Category Name</label>
+                            <input type="text" class="form-control" id="newCategoryName" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Add Category</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Add fade-up animation on scroll
+        document.addEventListener('DOMContentLoaded', function() {
+            const fadeElements = document.querySelectorAll('.fade-up');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            fadeElements.forEach(element => observer.observe(element));
+        });
+    </script>
+</body>
+</html> 
